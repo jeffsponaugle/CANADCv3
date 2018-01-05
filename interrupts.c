@@ -188,14 +188,18 @@ void __attribute__((interrupt, no_auto_psv)) _T1Interrupt(void)
         PORTAbits.RA3 = !PORTAbits.RA3;
     }
     
-    // Collect the most current ADC Samples every timer1 cycle (1000hz)
-    CollectAllADCSamples();
-
-    // If we are on the 10th interrupt cycle (so 100hz), lets build the CAN packets and transmit them.
-    if (l_TimerInterruptCount == 0)
+    if (g_EnableADCCapture != 0)
     {
-        BuildCANPackets();
-        TransmitCANPackets();
+        // Collect the most current ADC Samples every timer1 cycle (1000hz)
+        CollectAllADCSamples();
+
+        // If we are on the 10th interrupt cycle (so 100hz), lets build the CAN packets and transmit them.
+        if (l_TimerInterruptCount == 0)
+        {
+            BuildCANPackets();
+            TransmitCANPackets();
+        }
+    
     }
     
     // On entry to the interrupt, TMR1 is reset to 0.

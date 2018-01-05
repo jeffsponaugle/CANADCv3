@@ -64,7 +64,7 @@ extern "C" {
     extern unsigned int g_DMAInterrupts;
     extern unsigned int g_UARTReceiveErrors;           
     extern unsigned int g_UARTReceiveOverflowErrors;   
-
+    extern unsigned int g_EnableADCCapture; 
 
 
 

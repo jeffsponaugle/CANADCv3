@@ -23,6 +23,7 @@ void BuildCANPackets();
 void TransmitCANPackets();
 void ConfigureECAN1();
 bool TransmitECANFrame(unsigned int (*packet)[]);
+void TransmitECANStartupFrame();
 
 #ifdef	__cplusplus
 }

@@ -63,6 +63,9 @@ unsigned int g_TimerInterruptOverrun = 0;       // Number of times a pending tim
 unsigned int g_UARTReceiveErrors = 0;           // Number of UART1 receive errors
 unsigned int g_UARTReceiveOverflowErrors = 0;   // Number of UART1 receive overflow errors
 
+unsigned int g_EnableADCCapture = 0;            // A flag used in the timer interrupt to enable ADC capture and processing.
+
+
 
 //      Global Calibration Data - These should be stored in the global config.
 const double caloffset[8]={5.0,5.0,5.0,5.0,5.0,5.0,5.0,5.0};
@@ -124,8 +127,14 @@ int16_t main(void)
     // Second phase of startup config, incuding the CAN system and the timer interrupts.
     StartupConfigurationPhase2();
     
-    // At this point, the system in functioning with ADC conversion and CAN output.   Everything from this point on it just for 
-    // console output, configuration, and system monitoring.
+    // At this point, the system in functioning but ADC conversion and CAN output is not started.   
+    // We will output a startup frame over CAN to announce our presence.   In the future we should add autoconfiguration (detect
+    // other devices with identical configs and negotiate who is using what CAN IDs.
+
+    TransmitECANStartupFrame();
+    
+    // Start the ADC Capture process as well as the CAN transmit process.
+    g_EnableADCCapture = 1;
 
     // Delay for 10ms while timer1 interrupts and CAN transfers start, the toggle the LED output
     DelaymS(10);  
@@ -134,11 +143,6 @@ int16_t main(void)
     LATAbits.LATA4=1;
     DelaymS(200);
 
-    syslog("\r\nPress any key to start\r\n");
-    // Let's wait for a character before we get started.
-    // bool ReceiveUART1String(char* returnstring, unsigned int maxlength, bool returnonCRorLF)
-    //char test[10];
-    //ReceiveUART1String(test,10,true,true);
     // Start the console.  This function does not return.
     Console();   
     return 0;

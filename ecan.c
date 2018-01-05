@@ -75,6 +75,21 @@ void TransmitCANPackets()
     TransmitECANFrame( &g_CANPacket1 );    
 }
 
+void TransmitECANStartupFrame()
+{
+
+    g_CANPacket1[0] = (g_Config.CanStartup_ID & 0x000007FF) << 2 ; // Simple SID
+    g_CANPacket1[1] = 0;                                            // No EID
+    g_CANPacket1[2] = 8;                                            // 8 bytes of data
+    g_CANPacket1[3] = g_Config.CanStartup_SerialNumber;             // Bytes 0 & 1  
+    g_CANPacket1[4] = 0xAABB;                                       // Bytes 2 & 3
+    g_CANPacket1[5] = 0xCCDD;                                       // Bytes 4 & 5
+    g_CANPacket1[6] = 0xEEFF;                                       // Bytes 6 & 7
+    g_CANPacket1[7] = 0x00;                                         // Unused    
+    TransmitECANFrame( &g_CANPacket1 ); 
+
+
+}
 /*
  *      TransmitECANFrame() -   Transmit a single CAN frame.  The frame is put into the DMA buffer frame in a slot that is not
  *                              currently being used, and that slot is flagged for transmit.  Transmission happens automaticly

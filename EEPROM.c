@@ -129,6 +129,8 @@ bool FillConfigWithDefault(st_CAL* Config)
         Config->CanMessage2_DATA5=0x0d;
         Config->CanMessage2_DATA6=0x0e;
         Config->BootCount = 1;
+        Config->CanStartup_ID = 0x603;
+        Config->CanStartup_SerialNumber = 0x0001;
         return true;
        
    }

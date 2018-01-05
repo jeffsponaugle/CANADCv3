@@ -51,7 +51,8 @@ extern "C" {
         unsigned int CanMessage2_DATA5;
         unsigned int CanMessage2_DATA6;
         unsigned int BootCount;
-        
+        unsigned int CanStartup_ID;
+        unsigned int CanStartup_SerialNumber;
         
     } st_CAL;
     

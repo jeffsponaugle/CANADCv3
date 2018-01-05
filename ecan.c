@@ -42,6 +42,7 @@ void BuildCANPackets()
     g_CANPacket1[0] = (g_Config.CanMessage1_ID & 0x000007FF) << 2 ; // Simple SID
     g_CANPacket1[1] = 0;                                            // No EID
     g_CANPacket1[2] = 8;                                            // 8 bytes of data
+    // These compressions are backwards, as they should be the LSB before the MSB  *TOFIX*
     g_CANPacket1[3] = (g_ADCValues[0]<<4)|(g_ADCValues[1]>>8);      // Bytes 0 & 1  
     g_CANPacket1[4] = (g_ADCValues[1]<<8)|(g_ADCValues[2]>>4);      // Bytes 2 & 3
     g_CANPacket1[5] = (g_ADCValues[2]<<12)|(g_ADCValues[3]);        // Bytes 4 & 5
@@ -51,6 +52,7 @@ void BuildCANPackets()
     g_CANPacket2[0] = (g_Config.CanMessage2_ID & 0x000007FF) << 2 ; // Simple SID
     g_CANPacket2[1] = 0;                                            // No EID
     g_CANPacket2[2] = 8;                                            // 8 bytes of data
+    // These compressions are backwards, as they should be the LSB before the MSB  *TOFIX*
     g_CANPacket2[3] = g_ADCValues[4];                               // Bytes 0 & 1  
     g_CANPacket2[4] = g_ADCValues[5];                               // Bytes 2 & 3
     g_CANPacket2[5] = g_ADCValues[6];                               // Bytes 4 & 5

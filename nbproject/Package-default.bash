@@ -10,9 +10,9 @@ CND_CONF=default
 CND_DISTDIR=dist
 TMPDIR=build/${CND_CONF}/${IMAGE_TYPE}/tmp-packaging
 TMPDIRNAME=tmp-packaging
-OUTPUT_PATH=dist/${CND_CONF}/${IMAGE_TYPE}/ADCCANVer2B.X.${IMAGE_TYPE}.${OUTPUT_SUFFIX}
-OUTPUT_BASENAME=ADCCANVer2B.X.${IMAGE_TYPE}.${OUTPUT_SUFFIX}
-PACKAGE_TOP_DIR=adccanver2b.x/
+OUTPUT_PATH=dist/${CND_CONF}/${IMAGE_TYPE}/ADCCANVer3.${IMAGE_TYPE}.${OUTPUT_SUFFIX}
+OUTPUT_BASENAME=ADCCANVer3.${IMAGE_TYPE}.${OUTPUT_SUFFIX}
+PACKAGE_TOP_DIR=adccanver3/
 
 # Functions
 function checkReturnCode
@@ -57,15 +57,15 @@ mkdir -p ${TMPDIR}
 
 # Copy files and create directories and links
 cd "${TOP}"
-makeDirectory ${TMPDIR}/adccanver2b.x/bin
+makeDirectory ${TMPDIR}/adccanver3/bin
 copyFileToTmpDir "${OUTPUT_PATH}" "${TMPDIR}/${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}" 0755
 
 
 # Generate tar file
 cd "${TOP}"
-rm -f ${CND_DISTDIR}/${CND_CONF}/package/adccanver2b.x.tar
+rm -f ${CND_DISTDIR}/${CND_CONF}/package/adccanver3.tar
 cd ${TMPDIR}
-tar -vcf ../../../../${CND_DISTDIR}/${CND_CONF}/package/adccanver2b.x.tar *
+tar -vcf ../../../../${CND_DISTDIR}/${CND_CONF}/package/adccanver3.tar *
 checkReturnCode
 
 # Cleanup

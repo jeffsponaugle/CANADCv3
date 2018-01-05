@@ -28,6 +28,22 @@ extern "C" {
 
 void SetupADC();
 void CollectAllADCSamples();
+unsigned int GetSingleADCSample(unsigned int channel);
+unsigned divu10(unsigned n);
+void FilterAndDecimateSamples();
+#define SAMPLEFILTER_TAP_NUM 10
+
+typedef struct {
+  double history[SAMPLEFILTER_TAP_NUM];
+  unsigned int last_index;
+} SampleFilter;
+
+void SampleFilter_init(SampleFilter* f);
+void SampleFilter_put(SampleFilter* f, double input);
+double SampleFilter_get(SampleFilter* f);
+
+
+
 
 
 #ifdef	__cplusplus

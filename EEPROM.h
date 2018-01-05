@@ -12,12 +12,20 @@
 extern "C" {
 #endif
 #include <stdint.h>        /* Includes uint16_t definition   */ 
+#include <stdbool.h>
 #include "DEE Emulation 16-bit.h"
 
+// The structure of the EEPROM memory
 #define EE_ADDR_VERSION 0   //  Address of version/id tag.
-#define EE_ADDR_SIZE 1      // Address of size of data
 #define EE_ADDR_SIGNATURE 2 //  Addresss of signature (0xAA)
-#define EE_ADDR_DATA 3     // Address of start of data.
+#define EE_ADDR_DATA 3      // Address of start of data.
+#define EE_ADDR_SIZE 1      // Address of size of data
+// The header is 3 bytes ( Version, Signature, and size of the data chunk)
+// The data section starts at address EE_ADDR_DATA, and is of size EE_ADDR_SIZE
+// This self described the data section, and you can read that entire data section into the struction
+// defined below.
+#define EE_TOTALSIZE 255    // Maximum size of the EE array (255 elements)
+#define EE_DATASPACESIZE 251    // Size of the data area.  It is the total size minus 4 (since we have 4 elements before the data)
 
 #define EE_CURRENT_VERSION 0x01    
 #define EE_CURRENT_SIGNATURE 0xAA
@@ -48,10 +56,9 @@ extern "C" {
     } st_CAL;
     
     void ConfigurationSystemInit();
-    int FillConfigWithDefault(st_CAL* Config);
-    void WriteConfig(st_CAL *Cal);
-    void ReadConfig(st_CAL *Cal);
-    
+    bool WriteConfig(st_CAL *Cal);
+    bool ReadConfig(st_CAL *Cal);
+    bool FillConfigWithDefault(st_CAL* Config);
     extern st_CAL g_Config;
     
     

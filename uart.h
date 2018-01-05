@@ -12,14 +12,17 @@
 extern "C" {
 #endif
 
+
+
 // relies of FP (FCy) being defined
-#define BAUDRATE 115200
+#define BAUDRATE 57600
 #define BRGVAL ((FP/BAUDRATE)/4 )-1
 
 void SetupUART1();
 void TransmitUART1(char t);
 void TransmitIntUART1(int x);
 void TransmitStringUART1(char* string);
+bool ReceiveUART1String(char* returnstring, unsigned int maxlength, bool returnonCRorLF, bool echo);
 
 
 

@@ -13,8 +13,8 @@ extern "C" {
 #endif
 
 #define  ECAN1_MSG_BUF_LENGTH 	8
-// ECAN1MSGBUF is a collection of 4 (ECAN1_MSG_BUG_LENGTH) buffers, each 8 words in size.)
-//   8 words corresponds to word 0,1,2 being setup and SID, and word 3,4,5,6 being the packet data    
+// ECAN1MSGBUF is a collection of ECAN1_MSG_BUG_LENGTH message buffers, each 8 words in size.)
+// 8 words corresponds to word 0,1,2 being setup and SID, and word 3,4,5,6 being the packet data. Word 7 is unused.   
 typedef uint16_t ECAN1MSGBUF [ECAN1_MSG_BUF_LENGTH][8];
 extern ECAN1MSGBUF  ecan1msgBuf __attribute__((space(dma)));
 

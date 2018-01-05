@@ -3,7 +3,7 @@
     <type>com.microchip.mplab.nbide.embedded.makeproject</type>
     <configuration>
         <data xmlns="http://www.netbeans.org/ns/make-project/1">
-            <name>ADCCANVer2B</name>
+            <name>ADCCANVer3</name>
             <creation-uuid>3af626bc-9b7f-4b9a-9925-1450acc32181</creation-uuid>
             <make-project-type>0</make-project-type>
             <c-extensions>c</c-extensions>

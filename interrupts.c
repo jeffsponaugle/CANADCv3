@@ -162,36 +162,50 @@
 #include "ecan.h"
 
 unsigned int l_TimerInterruptCount = 0;
+/*
+*   _T1Interrupt(void) - Interrupt handler for Timer 1.  See timer1.c for Timer1 configuration.  This is configued to be called every 1ms
+*                        1000 times per second.
+*/
 
 void __attribute__((interrupt, no_auto_psv)) _T1Interrupt(void)
 {
-    IFS0bits.T1IF = 0;   // Clear Timer1 interrupt flag
-    unsigned int starttime,stoptime;
-    starttime = TMR1;
-    // Interrupt Counter increments from 0-9.
-    l_TimerInterruptCount = (l_TimerInterruptCount + 1 ) % 100;
+    // First thing to do is clear the interrupt flag.
+    IFS0bits.T1IF = 0; 
+
+    // starttime and stoptime are used as metrics for how long the timer interrupt takes to complete.
+    unsigned int stoptime;
+
+    // Interrupt Counter increments from 0-9.  This is used to select what functions get invoked in a particular interrupt.
+    // ADC data collection occurs every cycle (1000hz), but data transmission over CAN only happens every 10th cycle (100hz)
+    l_TimerInterruptCount = (l_TimerInterruptCount + 1 ) % 10;
             
-    // Update System Timestamp Variables
+    // Update System Timestamp Variables used for diagnostics, plus with will flash the LED every second.
     g_TimerMS += 1;
-    g_TimerMSTotal +=1;
     if (g_TimerMS == 1000)
     {
         g_TimerMS = 0;
         g_TimerSeconds++;
-        PORTAbits.RA4 = !PORTAbits.RA4;
+        PORTAbits.RA3 = !PORTAbits.RA3;
     }
     
-    // Collect the most current ADC Samples.
+    // Collect the most current ADC Samples every timer1 cycle (1000hz)
     CollectAllADCSamples();
+
+    // If we are on the 10th interrupt cycle (so 100hz), lets build the CAN packets and transmit them.
     if (l_TimerInterruptCount == 0)
     {
-         CollectAllADCSamples();
         BuildCANPackets();
         TransmitCANPackets();
     }
     
+    // On entry to the interrupt, TMR1 is reset to 0.
+    // TMR1 at this point represents the total time spend in this interrupt.
     stoptime = TMR1;
+    // Lets only update the global statistic if we are slower than the previous slowest interrupt.
     if (stoptime > g_InterruptTime ) g_InterruptTime = stoptime;
+
+    // We quickly check to see if another timer1 interrupt is pending.   If it is, we have spent too long is this handler.
+    // We record this in a global counter.
     if ( IFS0bits.T1IF == 1)
     {
         // We are over running, as there is already another pending interrupt.
@@ -200,34 +214,78 @@ void __attribute__((interrupt, no_auto_psv)) _T1Interrupt(void)
     
 }
 
+/*
+*   _C1Interrupt(void) - Interrupt handler for ECAN Module 1.  This interrupt is called based on configuration in the ecan.c config
+*                           function.   In this case it is configured to interrupt on packet transmission completion, or on transmission error.
+*                           This interrupt should be invoked at 200hz in normal operation, twice per 100hz cycle.
+*/
 void __attribute__((interrupt, no_auto_psv))_C1Interrupt(void)
 {
-    IFS2bits.C1IF = 0;  // clear interrupt flag
+    // First thing to do is clear the interrupt flag.
+    IFS2bits.C1IF = 0;
 
+    // We check to see if the interrupt was caused by a completed transmission.  If so, increment a diagnostic counter.
     if (C1INTFbits.TBIF)
     {
         C1INTFbits.TBIF = 0;
         g_ECANTransmitCompleted++;
     }
+    // Multiple flags can be present, so we need to check all of them.   We now check to see if the error flag has been set.
     if (C1INTFbits.ERRIF)
     {
+        // If the error flag is set, let's clear it and see what the particular error was.
         C1INTFbits.ERRIF = 0;
         g_ECANError++;
-        if (C1INTFbits.IVRIF) g_ECANIVRIF++;
-        if (C1INTFbits.TXBO) g_ECANTXBO++;
-        if (C1INTFbits.TXBP) g_ECANTXBP++;
-        if (C1INTFbits.TXWAR) g_ECANTXWAR++;
-        if (C1INTFbits.EWARN) g_ECANEWARN++;
+
+        //  There are 5 potential transmit error cases.  For each error case we will increment a global diagnostic statistic.
+        if (C1INTFbits.IVRIF) 
+        {
+            g_ECANIVRIF++;
+            C1INTFbits.IVRIF=0;
+        }
+        if (C1INTFbits.TXBO)
+        {
+            g_ECANTXBO++;
+        }
+        if (C1INTFbits.TXBP) 
+        {
+            g_ECANTXBP++;
+        }
+            
+        if (C1INTFbits.TXWAR)
+        {
+            g_ECANTXWAR++;
+        }
+            
+        if (C1INTFbits.EWARN)
+        {
+            g_ECANEWARN++;
+        }
+            
+        //  Since there was a transmssion error, if we dont't clear the DMA buffer transmit flags on all message slots we are using
+        //  The CAN controller will continue to try to retransmit the same packet again and again.   Since we will be creating a continous 
+        //  stream of packets, we will just cancel packets with transmisssion failures and let new packets be created by the default 
+        //  process.   This prevents us flooding the CAN bus with a continous transmission if there is some problem.
+        //  For simplicity, lets just clear both of the 2 message slots.
+
         C1TR01CONbits.TXREQ0 = 0;
         C1TR01CONbits.TXREQ1 = 0;
     }
+    // Diagnostic counter
     g_ECANInterrupts++;
 
 }
 
+/*
+*   _DMA0Interrupt(void) - Interrupt handler for DMA Channel 0.   This interrupt occurs at the completion of a DMA transfer as specifed in
+*                           DMA configuarion ( the count of size ).   We don't need this interrupt in production, but for developement we
+*                           record it in a diagnostic counter.
+*/
 void __attribute__((interrupt, no_auto_psv))_DMA0Interrupt(void)
 {
+    // Clear the DMA0 Interrupt Flag
     IFS0bits.DMA0IF = 0;
+    // Increment a diagnostic counter.
     g_DMAInterrupts++;
 
 }
